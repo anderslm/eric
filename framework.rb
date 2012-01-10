@@ -5,21 +5,25 @@ require "singleton"
 
 class CommandLine < GetoptLong
     include Singleton
-    attr_reader :environment, :cache_file
+    attr_reader :environment, :cache_file, :drop_cache
 
     def initialize
-        super
-            [ "--environment", "-E", GetoptLong::REQUIRED_ARGUMENT ]
-            [ "--cache-file", GetoptLong::REQUIRED_ARGUMENT ]
+        super( 
+            [ "--environment", "-E", GetoptLong::REQUIRED_ARGUMENT ],
+            [ "--cache-file", GetoptLong::REQUIRED_ARGUMENT ],
+            [ "--drop-cache", GetoptLong::NO_ARGUMENT ] )
 
         @environment = "paludis:ric"
         @cache_file = "packages.ric"
+        @drop_cache = false
         each do | opt, arg |
             case opt
             when "--environment"
                 @environtment = arg
             when "--cache-file"
                 @cache_file = arg
+            when "--drop-cache"
+                @drop_cache = true
             end
         end
     end

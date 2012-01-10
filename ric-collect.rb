@@ -1,14 +1,16 @@
+require "framework"
+
 require "yaml"
 
-def ric_collect(env, command_line)
+def ric_collect(env)
     puts "Collecting all packages..."
 
     # Get all packages from the current environment.
     all_packages = env[Selection::BestVersionOnly.new(Generator::All.new)]
     # Load the cache or create new collection if none.
     packages = 
-        if File.size? command_line.cache_file
-            YAML::load(File.read(command_line.cache_file))
+        if File.size? CommandLine.instance.cache_file and not CommandLine.instance.drop_cache
+            YAML::load(File.read(CommandLine.instance.cache_file))
         else
             Array.new
         end
@@ -47,7 +49,7 @@ def ric_collect(env, command_line)
     ensure
         puts "\n\nWriting cache to file. Don't interupt this!\n\n"
         # Write cache.
-        File.open(command_line.cache_file, "w") do |file|
+        File.open(CommandLine.instance.cache_file, "w") do |file|
             file.puts packages.to_yaml
         end
     end

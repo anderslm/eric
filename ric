@@ -15,6 +15,7 @@ else
 
     arguments = ARGV.pop(ARGV.length - 1)
     case ARGV.first
-        when "collect": ric_collect(env, CommandLine.instance)
+        when "collect": ric_collect(env)
+        else puts "No command named '#{ARGV.first}'"
     end
 end
