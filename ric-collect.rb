@@ -36,6 +36,7 @@ def ric_collect(env)
                             values = val.to_s.split(":")
                             package.add_remote(RemoteId.new(values[0], values[1]))
                             package.remotes.last.find_versions
+                            package.find_best_version_in_each_slot
                         end
                         break
                     end

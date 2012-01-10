@@ -2,6 +2,9 @@ require "getoptlong"
 require "net/http"
 require "rexml/document"
 require "singleton"
+require "Paludis"
+
+include Paludis
 
 class CommandLine < GetoptLong
     include Singleton
@@ -72,14 +75,29 @@ class RemoteVersion
 end
 
 class Package
-    attr_accessor :name, :remotes
+    attr_accessor :name, :remotes, :best_version_in_each_slot
     def initialize(paludis_package)
         @name = paludis_package.name.to_s
         @remotes = Array.new
+        @best_version_in_each_slot = Hash.new
     end
 
     def add_remote(remote)
         @remotes << remote
+    end
+
+    def find_best_version_in_each_slot
+        env = EnvironmentFactory.instance.create(CommandLine.instance.environment)
+
+        best_versions = env[Selection::BestVersionInEachSlot.new(Generator::Matches.new(parse_user_package_dep_spec(@name, env, []), nil, []))]
+        best_versions.each do |package|
+            package.each_metadata do |meta| 
+                if meta.human_name == "Slot"
+                    best_version_in_each_slot[meta.parse_value] = package.version.to_s
+                    break
+                end
+            end
+        end
     end
 end
 
