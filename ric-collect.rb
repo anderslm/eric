@@ -45,6 +45,7 @@ def ric_collect(env, command_line)
             i += 1
         end
     ensure
+        puts "\n\nWriting cache to file. Don't interupt this!\n\n"
         # Write cache.
         File.open(command_line.cache_file, "w") do |file|
             file.puts packages.to_yaml
