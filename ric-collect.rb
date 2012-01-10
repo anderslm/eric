@@ -1,49 +1,54 @@
 require "yaml"
 
-def ric_collect(env, arguments)
+def ric_collect(env, command_line)
     puts "Collecting all packages..."
+
+    # Get all packages from the current environment.
     all_packages = env[Selection::BestVersionOnly.new(Generator::All.new)]
+    # Load the cache or create new collection if none.
     packages = 
-        if File.size? "packages.ric"
-            YAML::load(File.read("packages.ric"))
+        if File.size? command_line.cache_file
+            YAML::load(File.read(command_line.cache_file))
         else
             Array.new
         end
     i = 0
+    # Used to write on same line each time.
     reset_line = "\r\e[0K"
 
-    all_packages.each do |fetched_package|
-        print reset_line + "Checking #{i.to_s} of #{all_packages.length.to_s}. Found #{packages.length.to_s} candidates"
-        $stdout.flush
-        if packages.select{|p| p.name == fetched_package.name}.first == nil
-            package = Package.new(fetched_package)
-            has_remote = false
-            fetched_package.each_metadata do |meta|
-                if meta.human_name == "Remote IDs"
-                    has_remote = true
-                    meta.parse_value.each do |val|
-                        values = val.to_s.split(":")
-                        package.add_remote(RemoteId.new(values[0], values[1]))
-                        package.remotes.last.find_versions
+    begin
+        # Go through each package.
+        all_packages.each do |fetched_package|
+            print reset_line + "Checking #{i.to_s} of #{all_packages.length.to_s}. Found #{packages.length.to_s} candidates"
+            $stdout.flush
+            # Only proceed if package is not already handled.
+            if packages.select{|p| p.name == fetched_package.name}.first == nil
+                package = Package.new(fetched_package)
+                has_remote = false
+                # Search through all metadata to find any remote ids.
+                fetched_package.each_metadata do |meta| 
+                    if meta.human_name == "Remote IDs"
+                        has_remote = true
+                        meta.parse_value.each do |val|
+                            # Handle the remote and find all versions from it.
+                            values = val.to_s.split(":")
+                            package.add_remote(RemoteId.new(values[0], values[1]))
+                            package.remotes.last.find_versions
+                        end
+                        break
                     end
                 end
+                if has_remote
+                    packages << package
+                end
             end
-            if has_remote
-                packages << package
-            end
-            File.open("packages.ric", "w") do |file|
-                file.puts packages.to_yaml
-            end
+            i += 1
         end
-        i += 1
+    ensure
+        # Write cache.
+        File.open(command_line.cache_file, "w") do |file|
+            file.puts packages.to_yaml
+        end
     end
-    #=begin
-    #packages.each do |package|
-    #    puts "#{package.name}-#{package.version}: "
-    #    package.remotes.each do |remote|
-    #        puts "#{remote.type}:#{remote.value}\n"
-    #    end
-    #end
-    #=end
-    puts "\nNumber of packages: #{packages.count}"
 end
+

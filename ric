@@ -15,6 +15,6 @@ else
 
     arguments = ARGV.pop(ARGV.length - 1)
     case ARGV.first
-        when "collect": ric_collect(env, arguments)
+        when "collect": ric_collect(env, CommandLine.instance)
     end
 end
