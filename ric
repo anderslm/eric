@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+
+require "Paludis"
+
+require "framework.rb"
+require "ric-collect"
+
+include Paludis
+
+if ARGV.length == 0
+    puts "Usage: ric COMMAND [ARGUMENTS]"
+else
+#    OutputDir = "./output"
+    env = EnvironmentFactory.instance.create(CommandLine.instance.environment)
+
+    arguments = ARGV.pop(ARGV.length - 1)
+    case ARGV.first
+        when "collect": ric_collect(env, arguments)
+    end
+end
