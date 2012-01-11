@@ -1,0 +1,7 @@
+This is an initial attempt to create a REMOTE_IDS client for Paludis on Exherbo Linux.
+The projects goal is to fulfill this project idea:
+"REMOTE_IDS client
+Develop a client using the Paludis library to extract metadata from Exherbo packages and check for new upstream versions. The client should be able to deliver the reports using several different interfaces. At minimum it should be able to generate a text based report locally as well as be able to mail the report and show it using a web interface.
+Furthermore it should be possible to configure the client to generate reports for a subset of package repositories, package categories or specific packages.
+For bonus points the client should also be able to show related data such as ChangeLogs or Release Notes when Exherbo packages contain enough metadata for that.
+Applicants should be familiar with Ruby, Python or C++ and have some knowledge of website development."

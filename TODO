@@ -1,0 +1,17 @@
+In no particular order.
+
+* Implement package, repository and category options thus enabling us to only check for updates for the matched packages.
+
+* Implement the following remotes:
+    * CPAN
+    * Launchpad
+    * Python Package Index
+    * RubyForge
+    * SourceForge
+    * Vim Scripts
+
+* Implement a reporting mechanism. We would like to report in:
+    * HTML
+    * Mail
+    * Console
+    * IRC
