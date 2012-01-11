@@ -11,11 +11,16 @@ if ARGV.length == 0
     puts "Usage: ric COMMAND [ARGUMENTS]"
 else
 #    OutputDir = "./output"
-    env = EnvironmentFactory.instance.create(CommandLine.instance.environment)
+    begin
+        Log.instance.log_level = LogLevel::Silent
+        env = EnvironmentFactory.instance.create(CommandLine.instance.environment)
 
-    arguments = ARGV.pop(ARGV.length - 1)
-    case ARGV.first
-        when "collect": ric_collect(env)
-        else puts "No command named '#{ARGV.first}'"
+        arguments = ARGV.pop(ARGV.length - 1)
+        case ARGV.first
+            when "collect": ric_collect(env)
+            else puts "No command named '#{ARGV.first}'"
+        end
+    rescue
+        puts "Something unexpected happened"
     end
 end

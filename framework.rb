@@ -13,6 +13,7 @@ class CommandLine < GetoptLong
     def initialize
         super( 
             [ "--environment", "-E", GetoptLong::REQUIRED_ARGUMENT ],
+            [ "--log-level", GetoptLong::REQUIRED_ARGUMENT ],
             [ "--cache-file", GetoptLong::REQUIRED_ARGUMENT ],
             [ "--drop-cache", GetoptLong::NO_ARGUMENT ] )
 
@@ -23,6 +24,20 @@ class CommandLine < GetoptLong
             case opt
             when "--environment"
                 @environtment = arg
+            when "--log-level"
+                case arg
+                    when "Debug"
+                        Log.instance.log_level = LogLevel::Debug
+                    when "Qa"
+                        Log.instance.log_level = LogLevel::Qa
+                    when "Silent"
+                        Log.instance.log_level = LogLevel::Silent
+                    when "Warning"
+                        Log.instance.log_level = LogLevel::Warning
+                    else
+                        puts "Log level '" + arg + "' does not exists. Specify one of: Debug, Qa, Silent or Warning."
+                end
+
             when "--cache-file"
                 @cache_file = arg
             when "--drop-cache"
