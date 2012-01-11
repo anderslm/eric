@@ -124,7 +124,13 @@ class Package
                                 best_remote_version_in_each_slot[slot] = version.spec.to_s
                             end
                         else
-                            new_slot = version.spec.to_s[0, slot.length]
+                            new_slot = 
+                                if slot != "0"
+                                    version.spec.to_s[0, slot.length]
+                                else
+                                    new_slot = "0"
+                                end
+
                             if best_remote_version_in_each_slot[new_slot] == nil or
                                 VersionSpec.new(best_remote_version_in_each_slot[new_slot]) < version.spec
                                 best_remote_version_in_each_slot[new_slot] = version.spec.to_s
