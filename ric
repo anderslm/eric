@@ -3,7 +3,7 @@
 require "Paludis"
 
 require "framework.rb"
-require "ric-collect"
+require "ric-sync"
 
 include Paludis
 
@@ -17,7 +17,7 @@ else
 
         arguments = ARGV.pop(ARGV.length - 1)
         case ARGV.first
-            when "collect": ric_collect(env)
+            when "sync": ric_sync(env)
             else puts "No command named '#{ARGV.first}'"
         end
     rescue

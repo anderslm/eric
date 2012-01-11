@@ -1,10 +1,16 @@
+require "date"
 require "framework"
 
 require "yaml"
 
-def ric_collect(env)
+def ric_sync(env)
     puts "Collecting all packages..."
 
+    # Check for modification time and drop cache if neccesary.
+    if File::mtime(CommandLine.instance.cache_file) < Time.now - (7 * (60*60*24)) and not CommandLine.instance.keep_cache
+        File.delete(CommandLine.instance.cache_file)
+    end
+ 
     # Get all packages from the current environment.
     all_packages = env[Selection::BestVersionOnly.new(Generator::All.new)]
     # Load the cache or create new collection if none.

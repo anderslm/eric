@@ -15,11 +15,13 @@ class CommandLine < GetoptLong
             [ "--environment", "-E", GetoptLong::REQUIRED_ARGUMENT ],
             [ "--log-level", GetoptLong::REQUIRED_ARGUMENT ],
             [ "--cache-file", GetoptLong::REQUIRED_ARGUMENT ],
+            [ "--keep-cache", GetoptLong::NO_ARGUMENT ],
             [ "--drop-cache", GetoptLong::NO_ARGUMENT ] )
 
         @environment = "paludis:ric"
         @cache_file = "packages.ric"
         @drop_cache = false
+        @keep_cache = false
         each do | opt, arg |
             case opt
             when "--environment"
@@ -42,6 +44,8 @@ class CommandLine < GetoptLong
                 @cache_file = arg
             when "--drop-cache"
                 @drop_cache = true
+            when "--keep-cache"
+                @keep_cache = true
             end
         end
     end
