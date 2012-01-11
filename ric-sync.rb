@@ -1,6 +1,7 @@
 require "date"
-require "framework"
 require "yaml"
+
+require "framework"
 
 def ric_sync(env)
     puts "Collecting all packages..."
@@ -19,7 +20,7 @@ def ric_sync(env)
     # Load the cache or create new collection if none.
     packages = 
         if File.size? CommandLine.instance.cache_file
-            YAML::load(File.read(CommandLine.instance.cache_file))
+            YAML::load(File::read(CommandLine.instance.cache_file))
         else
             Array.new
         end

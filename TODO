@@ -10,8 +10,7 @@ In no particular order.
     * SourceForge
     * Vim Scripts
 
-* Implement a reporting mechanism. We would like to report in:
+* Implement the following reports:
     * HTML
     * Mail
-    * Console
     * IRC

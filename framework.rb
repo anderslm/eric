@@ -6,9 +6,11 @@ require "Paludis"
 
 include Paludis
 
+:report_console
+
 class CommandLine < GetoptLong
     include Singleton
-    attr_reader :environment, :cache_file, :drop_cache
+    attr_reader :environment, :cache_file, :drop_cache, :keep_cache, :report_type
 
     def initialize
         super( 
@@ -16,30 +18,38 @@ class CommandLine < GetoptLong
             [ "--log-level", GetoptLong::REQUIRED_ARGUMENT ],
             [ "--cache-file", GetoptLong::REQUIRED_ARGUMENT ],
             [ "--keep-cache", GetoptLong::NO_ARGUMENT ],
-            [ "--drop-cache", GetoptLong::NO_ARGUMENT ] )
+            [ "--drop-cache", GetoptLong::NO_ARGUMENT ],
+            [ "--type", GetoptLong::REQUIRED_ARGUMENT ] )
 
         @environment = "paludis:ric"
         @cache_file = "packages.yaml"
         @drop_cache = false
         @keep_cache = false
+        @report_type = :report_console
         each do | opt, arg |
             case opt
             when "--environment"
                 @environtment = arg
             when "--log-level"
                 case arg
-                    when "Debug"
-                        Log.instance.log_level = LogLevel::Debug
-                    when "Qa"
-                        Log.instance.log_level = LogLevel::Qa
-                    when "Silent"
-                        Log.instance.log_level = LogLevel::Silent
-                    when "Warning"
-                        Log.instance.log_level = LogLevel::Warning
-                    else
-                        puts "Log level '" + arg + "' does not exists. Specify one of: Debug, Qa, Silent or Warning."
+                when "debug"
+                    Log.instance.log_level = LogLevel::Debug
+                when "qa"
+                    Log.instance.log_level = LogLevel::Qa
+                when "silent"
+                    Log.instance.log_level = LogLevel::Silent
+                when "warning"
+                    Log.instance.log_level = LogLevel::Warning
+                else
+                    puts "Log level '" + arg + "' does not exists. Specify one of: debug, qa, silent or warning."
                 end
-
+            when "--type"
+                case arg
+                when "console"
+                    @report_type = :report_console
+                else
+                   puts "Report type '" + arg + "' does not exists. Specify one of: console."
+                end
             when "--cache-file"
                 @cache_file = arg
             when "--drop-cache"
@@ -64,16 +74,20 @@ class RemoteId
     end
 
     def find_versions()
-        case type
-            when "freshmeat"
-                uri = URI("http://freecode.com/projects/#{value}/releases.xml?auth_code=iZGCkMK7nxw6nhbArwN")
-                best_version = nil
-                xml = Net::HTTP.get_response(uri).body
-                doc = REXML::Document.new(xml)
-                doc.elements.each("releases/release") do |release|
-                    version = release.elements["version"].get_text.to_s.strip
-                    add_version(version)
-                end
+        begin
+            case type
+                when "freshmeat"
+                    uri = URI("http://freecode.com/projects/#{value}/releases.xml?auth_code=iZGCkMK7nxw6nhbArwN")
+                    best_version = nil
+                    xml = Net::HTTP.get_response(uri).body
+                    doc = REXML::Document.new(xml)
+                    doc.elements.each("releases/release") do |release|
+                        version = release.elements["version"].get_text.to_s.strip
+                        add_version(version)
+                    end
+            end
+        rescue URI::InvalidURIError
+            puts "The URI 'http://freecode.com/projects/#{value}/releases.xml?auth_code=iZGCkMK7nxw6nhbArwN' is not valid. Skipping."
         end
     end
 end
