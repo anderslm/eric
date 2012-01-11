@@ -69,17 +69,18 @@ class RemoteVersion
         begin
             return VersionSpec.new(plaintext)
         rescue
-            return "Not available"
+            return false
         end
     end
 end
 
 class Package
-    attr_accessor :name, :remotes, :best_version_in_each_slot
+    attr_accessor :name, :remotes, :best_version_in_each_slot, :best_remote_version_in_each_slot
     def initialize(paludis_package)
         @name = paludis_package.name.to_s
         @remotes = Array.new
         @best_version_in_each_slot = Hash.new
+        @best_remote_version_in_each_slot = Hash.new
     end
 
     def add_remote(remote)
@@ -95,6 +96,26 @@ class Package
                 if meta.human_name == "Slot"
                     best_version_in_each_slot[meta.parse_value] = package.version.to_s
                     break
+                end
+            end
+        end
+        best_version_in_each_slot.each_pair do |slot,value|
+            remotes.each do |remote|
+                remote.versions.each do |version|
+                    if version.spec
+                        if version.spec.to_s.start_with?(slot)
+                            if best_remote_version_in_each_slot[slot] == nil or
+                                VersionSpec.new(best_remote_version_in_each_slot[slot]) < version.spec
+                                best_remote_version_in_each_slot[slot] = version.spec.to_s
+                            end
+                        else
+                            new_slot = version.spec.to_s[0, slot.length]
+                            if best_remote_version_in_each_slot[new_slot] == nil or
+                                VersionSpec.new(best_remote_version_in_each_slot[new_slot]) < version.spec
+                                best_remote_version_in_each_slot[new_slot] = version.spec.to_s
+                            end
+                        end
+                    end
                 end
             end
         end
