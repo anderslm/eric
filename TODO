@@ -1,5 +1,7 @@
 In no particular order.
 
+* Implement some kind of matching patterns for version strings a package supports. This is to avoid version like '20100306' and that sort of crazy things.
+
 * Implement package, repository and category options thus enabling us to only check for updates for the matched packages.
 
 * Implement the following remotes:
