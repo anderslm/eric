@@ -1,21 +1,24 @@
 require "date"
 require "framework"
-
 require "yaml"
 
 def ric_sync(env)
     puts "Collecting all packages..."
 
     # Check for modification time and drop cache if neccesary.
-    if File::mtime(CommandLine.instance.cache_file) < Time.now - (7 * (60*60*24)) and not CommandLine.instance.keep_cache
+    if File::exists? CommandLine.instance.cache_file and 
+        ((File::mtime(CommandLine.instance.cache_file) < Time.now - (7 * (60*60*24)) and 
+        not CommandLine.instance.keep_cache ) or CommandLine.instance.drop_cache)
         File.delete(CommandLine.instance.cache_file)
+    else
+        puts "Using cache file '" + CommandLine.instance.cache_file + "'."
     end
  
     # Get all packages from the current environment.
     all_packages = env[Selection::BestVersionOnly.new(Generator::All.new)]
     # Load the cache or create new collection if none.
     packages = 
-        if File.size? CommandLine.instance.cache_file and not CommandLine.instance.drop_cache
+        if File.size? CommandLine.instance.cache_file
             YAML::load(File.read(CommandLine.instance.cache_file))
         else
             Array.new
@@ -27,7 +30,7 @@ def ric_sync(env)
     begin
         # Go through each package.
         all_packages.each do |fetched_package|
-            print reset_line + "Checking #{i.to_s} of #{all_packages.length.to_s}. Found #{packages.length.to_s} candidates"
+            print reset_line + "Checking #{i.to_s} of #{all_packages.length.to_s}. Found #{packages.length.to_s} candidates..."
             $stdout.flush
             # Only proceed if package is not already handled.
             if packages.select{|p| p.name == fetched_package.name}.first == nil
