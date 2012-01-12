@@ -47,7 +47,7 @@ def eric_report_console(env, packages)
             repository = ""
             local_packages = env[Selection::AllVersionsSorted.new(Generator::Matches.new(parse_user_package_dep_spec("=" + package.name + "-" + local_version, env, []), nil, []))]
             local_packages.each do |local_package|
-                if not local_package.name.to_s.include?("::installed")
+                if local_package.repository_name != "installed"
                     repository = local_package.repository_name 
                 end
             end
