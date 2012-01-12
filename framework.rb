@@ -2,6 +2,7 @@ require "getoptlong"
 require "rubygems"
 require "json/ext"
 require "net/http"
+require "net/https"
 require "rexml/document"
 require "singleton"
 require "Paludis"
@@ -76,28 +77,50 @@ class RemoteId
     end
 
     def find_versions()
-        case type
-        when "freshmeat"
-            begin
-                uri = URI("http://freecode.com/projects/#{value}/releases.xml?auth_code=iZGCkMK7nxw6nhbArwN")
+        url = nil
+
+        begin
+            case type
+            when "freshmeat"
+                url = "http://freecode.com/projects/#{value}/releases.xml?auth_code=iZGCkMK7nxw6nhbArwN"
+                uri = URI(url)
                 xml = Net::HTTP.get_response(uri).body
                 doc = REXML::Document.new(xml)
                 doc.elements.each("releases/release") do |release|
                     version = release.elements["version"].get_text.to_s.strip
                     add_version(version)
                 end
-            rescue URI::InvalidURIError
-                puts "The URI 'http://freecode.com/projects/#{value}/releases.xml?auth_code=iZGCkMK7nxw6nhbArwN' is not valid. Skipping."
-            end
-        when "cpan"
-            uri = URI("http://api.metacpan.org/release/#{value}")
-            json = JSON.parse(Net::HTTP.get_response(uri).body)
-            if json != nil
-                version = json["version"]
-                if version != nil
-                    add_version(version.strip)
+            when "cpan"
+                url = "http://api.metacpan.org/release/#{value}"
+                uri = URI(url)
+                json = JSON.parse(Net::HTTP.get_response(uri).body)
+                if json != nil
+                    version = json["version"]
+                    if version != nil
+                        add_version(version.strip)
+                    end
+                end
+            when "launchpad"
+                url = "https://api.launchpad.net/1.0/#{value}/releases"
+                uri = URI(url)
+                http = Net::HTTP.new(uri.host, uri.port)
+                http.use_ssl = true
+                http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+                request = Net::HTTP::Get.new(uri.request_uri)
+                json = JSON.parse(http.request(request).body)
+                if json != nil
+                    json["entries"].each do |entry|
+                        version = entry["version"]
+                        if version != nil
+                            add_version(version.strip)
+                        end
+                    end
                 end
             end
+        rescue URI::InvalidURIError
+            puts "The URI '#{value}' is not valid. Skipping."
+        rescue Exception
+            puts "The remote version could not be fetched. Skipping."
         end
     end
 end
