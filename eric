@@ -19,7 +19,7 @@ else
         arguments = ARGV.pop(ARGV.length - 1)
         case ARGV.first
             when "sync": eric_sync(env)
-            when "report": eric_report;
+            when "report": eric_report(env);
             else puts "No command named '#{ARGV.first}'"
         end
     rescue Exception => e

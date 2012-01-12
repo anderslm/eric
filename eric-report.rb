@@ -6,7 +6,7 @@ require "eric-report-console"
 
 include Paludis
 
-def eric_report()
+def eric_report(env)
     puts "Generating report..."
 
     packages = YAML::load(File::read(CommandLine.instance.cache_file))
@@ -32,6 +32,6 @@ def eric_report()
 
     case CommandLine.instance.report_type
     when :report_console
-        eric_report_console(packages_with_updates)
+        eric_report_console(env, packages_with_updates)
     end
 end
