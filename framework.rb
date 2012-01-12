@@ -1,4 +1,6 @@
 require "getoptlong"
+require "rubygems"
+require "json/ext"
 require "net/http"
 require "rexml/document"
 require "singleton"
@@ -74,20 +76,28 @@ class RemoteId
     end
 
     def find_versions()
-        begin
-            case type
-                when "freshmeat"
-                    uri = URI("http://freecode.com/projects/#{value}/releases.xml?auth_code=iZGCkMK7nxw6nhbArwN")
-                    best_version = nil
-                    xml = Net::HTTP.get_response(uri).body
-                    doc = REXML::Document.new(xml)
-                    doc.elements.each("releases/release") do |release|
-                        version = release.elements["version"].get_text.to_s.strip
-                        add_version(version)
-                    end
+        case type
+        when "freshmeat"
+            begin
+                uri = URI("http://freecode.com/projects/#{value}/releases.xml?auth_code=iZGCkMK7nxw6nhbArwN")
+                xml = Net::HTTP.get_response(uri).body
+                doc = REXML::Document.new(xml)
+                doc.elements.each("releases/release") do |release|
+                    version = release.elements["version"].get_text.to_s.strip
+                    add_version(version)
+                end
+            rescue URI::InvalidURIError
+                puts "The URI 'http://freecode.com/projects/#{value}/releases.xml?auth_code=iZGCkMK7nxw6nhbArwN' is not valid. Skipping."
             end
-        rescue URI::InvalidURIError
-            puts "The URI 'http://freecode.com/projects/#{value}/releases.xml?auth_code=iZGCkMK7nxw6nhbArwN' is not valid. Skipping."
+        when "cpan"
+            uri = URI("http://api.metacpan.org/release/#{value}")
+            json = JSON.parse(Net::HTTP.get_response(uri).body)
+            if json != nil
+                version = json["version"]
+                if version != nil
+                    add_version(version.strip)
+                end
+            end
         end
     end
 end
