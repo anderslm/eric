@@ -2,11 +2,11 @@ require "Paludis"
 require "yaml"
 
 require "framework"
-require "ric-report-console"
+require "eric-report-console"
 
 include Paludis
 
-def ric_report()
+def eric_report()
     puts "Generating report..."
 
     packages = YAML::load(File::read(CommandLine.instance.cache_file))
@@ -32,6 +32,6 @@ def ric_report()
 
     case CommandLine.instance.report_type
     when :report_console
-        ric_report_console(packages_with_updates)
+        eric_report_console(packages_with_updates)
     end
 end

@@ -3,8 +3,8 @@
 require "Paludis"
 
 require "framework"
-require "ric-sync"
-require "ric-report"
+require "eric-sync"
+require "eric-report"
 
 include Paludis
 
@@ -18,8 +18,8 @@ else
 
         arguments = ARGV.pop(ARGV.length - 1)
         case ARGV.first
-            when "sync": ric_sync(env)
-            when "report": ric_report;
+            when "sync": eric_sync(env)
+            when "report": eric_report;
             else puts "No command named '#{ARGV.first}'"
         end
     rescue Exception => e

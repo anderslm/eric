@@ -3,7 +3,7 @@ require "yaml"
 
 require "framework"
 
-def ric_sync(env)
+def eric_sync(env)
     puts "Collecting all packages..."
 
     # Check for modification time and drop cache if neccesary.

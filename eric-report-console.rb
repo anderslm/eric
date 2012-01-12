@@ -25,7 +25,7 @@ def print_line(content = "", side_char = "+", fill_char = "-")
     puts output
 end
 
-def ric_report_console(packages)
+def eric_report_console(packages)
     puts packages.length.to_s + " package(s) needs updating."
     packages.each do |package|
         print_line(package.name)
