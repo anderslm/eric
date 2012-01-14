@@ -2,6 +2,8 @@ In no particular order.
 
 * Write tests!
 
+* Group remote request so that they can be executed faster.
+
 * Extract a lot more metadata about updates; changelogs, dependencies...
 
 * Implement some kind of matching patterns for version strings a package supports. This is to avoid version like '20100306' and that sort of crazy things.
