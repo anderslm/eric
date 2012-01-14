@@ -116,9 +116,21 @@ class RemoteId
                         end
                     end
                 end
+            when "pypi"
+                url = "http://pypi.python.org/pypi?:action=json&name=#{value}"
+                uri = URI(url)
+                json = JSON.parse(Net::HTTP.get_response(uri).body)
+                if json != nil
+                    info = json["info"]
+                    if info != nil
+                        if info["version"] != nil
+                            add_version(info["version"].strip)
+                        end
+                    end
+                end
             end
         rescue URI::InvalidURIError
-            puts "The URI '#{value}' is not valid. Skipping."
+            puts "The URI '#{url}' is not valid. Skipping."
         rescue Exception
             puts "The remote version could not be fetched. Skipping."
         end

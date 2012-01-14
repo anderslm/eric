@@ -11,7 +11,6 @@ In no particular order.
 * The Freshmeat/Freecode remote uses a auth key. This auth key is limited to 600 calls per auth code per hour (http://help.freecode.com/kb/api-7/data-api-introduction). This could be worked-around by getting more auth keys, or we could ask the friendly people at Freecode to give us an auth key with no, or high, limit. As of now there is around 1000 packages which have freshmeat as remote.
 
 * Implement the following remotes:
-    * Python Package Index
     * RubyForge
     * SourceForge
     * Vim Scripts
