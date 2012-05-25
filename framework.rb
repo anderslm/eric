@@ -24,7 +24,7 @@ class CommandLine < GetoptLong
             [ "--drop-cache", GetoptLong::NO_ARGUMENT ],
             [ "--type", GetoptLong::REQUIRED_ARGUMENT ] )
 
-        @environment = "paludis:ric"
+        @environment = ""
         @cache_file = "packages.yaml"
         @drop_cache = false
         @keep_cache = false
