@@ -65,4 +65,3 @@ def eric_sync(env)
         end
     end
 end
-

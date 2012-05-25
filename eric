@@ -11,7 +11,6 @@ include Paludis
 if ARGV.length == 0
     puts "Usage: ric COMMAND [ARGUMENTS]"
 else
-#    OutputDir = "./output"
     begin
         Log.instance.log_level = LogLevel::Silent
         env = EnvironmentFactory.instance.create(CommandLine.instance.environment)
