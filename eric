@@ -15,13 +15,14 @@ else
         Log.instance.log_level = LogLevel::Silent
         env = EnvironmentFactory.instance.create(CommandLine.instance.environment)
 
-        arguments = ARGV.pop(ARGV.length - 1)
         case ARGV.first
-            when "sync": eric_sync(env)
+            when "sync": eric_sync(env, ARGV[1])
             when "report": eric_report(env);
             else puts "No command named '#{ARGV.first}'"
         end
     rescue Exception => e
         puts "An unexpected exception occured: " + e.message
+        puts "---------------------"
+        puts e.backtrace
     end
 end

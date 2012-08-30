@@ -3,7 +3,7 @@ require "yaml"
 
 require "framework"
 
-def eric_sync(env)
+def eric_sync(env, target)
     puts "Collecting all packages..."
 
     # Check for modification time and drop cache if neccesary.
@@ -14,9 +14,15 @@ def eric_sync(env)
     else
         puts "Using cache file '" + CommandLine.instance.cache_file + "'."
     end
- 
-    # Get all packages from the current environment.
-    all_packages = env[Selection::BestVersionOnly.new(Generator::All.new)]
+
+    all_packages = 
+        if target 
+            env[Selection::BestVersionOnly.new(Generator::Matches.new(Paludis::parse_user_package_dep_spec(target, env, [ :allow_wildcards ]), nil, []))]
+        else
+            # Get all packages from the current environment.
+            env[Selection::BestVersionOnly.new(Generator::All.new)]
+        end
+
     # Load the cache or create new collection if none.
     packages = 
         if File.size? CommandLine.instance.cache_file
@@ -29,9 +35,12 @@ def eric_sync(env)
     reset_line = "\r\e[0K"
 
     begin
+
         # Go through each package.
         all_packages.each do |fetched_package|
-            print reset_line + "Checking #{i.to_s} of #{all_packages.length.to_s}. Found #{packages.length.to_s} candidates..."
+            i += 1
+        text = reset_line + "Checking #{i.to_s} of #{all_packages.length.to_s}. Found #{packages.length.to_s} candidate(s)..."
+            print text
             $stdout.flush
             # Only proceed if package is not already handled.
             if packages.select{|p| p.name == fetched_package.name}.first == nil
@@ -55,7 +64,8 @@ def eric_sync(env)
                     packages << package
                 end
             end
-            i += 1
+            print text
+            $stdout.flush
         end
     ensure
         puts "\n\nWriting cache to file. Don't interupt this!\n\n"

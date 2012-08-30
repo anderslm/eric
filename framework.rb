@@ -11,6 +11,16 @@ include Paludis
 
 :report_console
 
+$matching_patterns = Hash.new
+file = File.new("matching_patterns.conf", "r")
+
+while (line = file.gets)
+    key_value = line.split(" ")
+
+    $matching_patterns[key_value[0]] = key_value[1]
+end
+file.close
+
 class CommandLine < GetoptLong
     include Singleton
     attr_reader :environment, :cache_file, :drop_cache, :keep_cache, :report_type
@@ -81,7 +91,7 @@ class RemoteId
 
         begin
             case type
-            when "freshmeat"
+            when "freecode"
                 url = "http://freecode.com/projects/#{value}/releases.xml?auth_code=iZGCkMK7nxw6nhbArwN"
                 uri = URI(url)
                 xml = Net::HTTP.get_response(uri).body
@@ -147,22 +157,31 @@ class RemoteVersion
         begin
             return VersionSpec.new(plaintext)
         rescue
-            return false
+            return VersionSpec.new("0")
         end
     end
 end
 
 class Package
-    attr_accessor :name, :remotes, :best_version_in_each_slot, :best_remote_version_in_each_slot
+    attr_accessor :name, :remotes, :best_version_in_each_slot, :best_remote_version_in_each_slot, :matching_pattern
     def initialize(paludis_package)
         @name = paludis_package.name.to_s
         @remotes = Array.new
         @best_version_in_each_slot = Hash.new
         @best_remote_version_in_each_slot = Hash.new
+        @matching_pattern = $matching_patterns[@name]
     end
 
     def add_remote(remote)
         @remotes << remote
+    end
+
+    def validate_version(version)
+        if @matching_pattern == nil
+            return version
+        end
+
+        return version.match(@matching_pattern).to_s
     end
 
     def find_best_version_in_each_slot
@@ -180,11 +199,17 @@ class Package
         best_version_in_each_slot.each_pair do |slot,value|
             remotes.each do |remote|
                 remote.versions.each do |version|
-                    if version.spec
-                        if version.spec.to_s.start_with?(slot)
+                    version_string = validate_version(version.spec.to_s)
+                    if !version.spec
+                        version_string = validate_version(version.plaintext)
+                    end
+                    version.plaintext = version_string
+
+                    if version_string and version_string != ""
+                        if version_string.start_with?(slot)
                             if best_remote_version_in_each_slot[slot] == nil or
                                 VersionSpec.new(best_remote_version_in_each_slot[slot]) < version.spec
-                                best_remote_version_in_each_slot[slot] = version.spec.to_s
+                                best_remote_version_in_each_slot[slot] = version_string
                             end
                         else
                             new_slot = 
@@ -193,10 +218,9 @@ class Package
                                 else
                                     new_slot = "0"
                                 end
-
                             if best_remote_version_in_each_slot[new_slot] == nil or
                                 VersionSpec.new(best_remote_version_in_each_slot[new_slot]) < version.spec
-                                best_remote_version_in_each_slot[new_slot] = version.spec.to_s
+                                best_remote_version_in_each_slot[new_slot] = version_string
                             end
                         end
                     end
